@@ -22,6 +22,9 @@ use crate::ui::prompt;
 use crate::ui::spinner::Spinner;
 use crate::{dirs, env, fake_asdf, file};
 
+use crate::ui::color::cyan;
+use crate::ui::spinner::Spinner;
+
 mod runtime_conf;
 
 /// These represent individual plugin@version pairs of runtimes
@@ -41,7 +44,7 @@ impl RuntimeVersion {
         let install_path = dirs::INSTALLS.join(&plugin.name).join(version);
         let download_path = dirs::DOWNLOADS.join(&plugin.name).join(version);
         Self {
-            runtime_conf_path: install_path.join(".rtxconf.msgpack"),
+            runtime_conf_path: install_path.join(".runtimeconf.msgpack"),
             script_man: build_script_man(
                 version,
                 &plugin.plugin_path,
@@ -70,6 +73,7 @@ impl RuntimeVersion {
     pub fn install(&self, install_type: InstallType, config: &Config) -> Result<()> {
         let plugin = &self.plugin;
         let settings = &config.settings;
+
         debug!("install {} {} {}", plugin.name, self.version, install_type);
         let rtv_label = cyan(Stderr, &self.to_string());
         let install_message = format!("Installing runtime: {rtv_label}...");
