@@ -78,6 +78,10 @@ impl Config {
         Ok(entries.into_iter().collect())
     }
 
+    pub fn list_plugins(&self) -> Vec<Arc<Plugin>> {
+        self.ts.list_plugins()
+    }
+
     pub fn list_paths(&self) -> Result<Vec<PathBuf>> {
         let paths = self
             .ts
@@ -162,6 +166,10 @@ impl Config {
                 }
             }
         }
+    }
+
+    pub fn get_plugin(&self, name: &PluginName) -> Option<Arc<Plugin>> {
+        self.ts.find_plugin(name)
     }
 }
 

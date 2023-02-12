@@ -12,6 +12,7 @@ use crate::config::config_file::{ConfigFile, ConfigFileType};
 use crate::config::PluginSource;
 use crate::file::display_path;
 use crate::plugins::PluginName;
+use crate::toolset::{ToolSource, ToolVersion, Toolset};
 
 // python 3.11.0 3.10.0
 // shellcheck 0.9.0
@@ -97,6 +98,18 @@ impl ToolVersions {
             }
         }
         Ok(plugins)
+    }
+}
+
+impl From<ToolVersions> for crate::toolset::Toolset {
+    fn from(value: ToolVersions) -> Self {
+        let mut toolset = Toolset::new(ToolSource::ToolVersions(value.path.clone()));
+        for (plugin, tvp) in value.plugins {
+            for version in tvp.versions {
+                toolset.add_version(plugin.clone(), ToolVersion::Version(version));
+            }
+        }
+        toolset
     }
 }
 
@@ -214,6 +227,15 @@ pub(crate) mod tests {
         assert_snapshot!(tv.dump(), @r###"
         ruby 3.0.5
         "###);
+    }
+
+    #[test]
+    fn test_from_toolset() {
+        let orig = indoc! {"
+        ruby: 3.0.5 3.1
+        "};
+        let toolset: Toolset = ToolVersions::parse_str(orig).unwrap().into();
+        assert_display_snapshot!(toolset, @"Toolset: ruby 3.0.5 3.1");
     }
 
     #[derive(Debug)]
